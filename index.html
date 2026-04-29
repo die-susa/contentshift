@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unwritten × CONTENTshift</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200;0,300;0,400;0,500;1,300;1,400&family=Heebo:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --blue:        #3087B9;
+    --blue-dim:    rgba(48,135,185,0.13);
+    --blue-border: rgba(57,135,184,0.2);
+    --white:       #FFFFFF;
+    --grey-light:  #F3F4F6;
+    --anthrazit:   #3F4448;
+    --text-dark:   #444444;
+    --text-sec:    #3E4447;
+    --text-dis:    #99999A;
+    --text-light:  #F3F4F6;
+    --font-head:   'Plus Jakarta Sans', sans-serif;
+    --font-body:   'Heebo', sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--white);
+    color: var(--text-dark);
+    font-family: var(--font-body);
+    font-weight: 400;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* Cursor */
+  .cursor {
+    position: fixed; width: 10px; height: 10px;
+    background: var(--blue); border-radius: 50%;
+    pointer-events: none; z-index: 9999;
+    transform: translate(-50%,-50%);
+  }
+  .cursor-ring {
+    position: fixed; width: 30px; height: 30px;
+    border: 1px solid rgba(48,135,185,.4); border-radius: 50%;
+    pointer-events: none; z-index: 9998;
+    transform: translate(-50%,-50%); opacity: .7;
+    transition: transform .15s ease-out;
+  }
+
+  /* Progress */
+  .progress-bar {
+    position: fixed; top: 0; left: 0; height: 2px;
+    background: var(--blue); z-index: 600;
+    transition: width .35s ease; width: 0;
+  }
+
+  /* Nav dots */
+  .nav-dots {
+    position: fixed; right: 1.8rem; top: 50%;
+    transform: translateY(-50%);
+    display: flex; flex-direction: column; gap: .55rem; z-index: 500;
+  }
+  .nav-dot {
+    width: 5px; height: 5px; border-radius: 50%;
+    background: var(--text-dis); border: none; padding: 0;
+    cursor: pointer; transition: all .25s;
+  }
+  .nav-dot.active { background: var(--blue); transform: scale(1.7); }
+
+  /* Slide base */
+  .slide {
+    min-height: 100vh;
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 7vh 8vw; position: relative; overflow: hidden;
+  }
+
+  /* Grain */
+  body::after {
+    content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 900;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.022'/%3E%3C/svg%3E");
+  }
+
+  /* Reveal */
+  .reveal { opacity: 0; transform: translateY(22px); transition: opacity .72s ease, transform .72s ease; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+  .d1 { transition-delay: .1s; } .d2 { transition-delay: .2s; }
+  .d3 { transition-delay: .3s; } .d4 { transition-delay: .4s; }
+  .d5 { transition-delay: .5s; }
+
+  @keyframes fadeUp  { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes slideUp { from{opacity:0;transform:translateY(100%)} to{opacity:1;transform:translateY(0)} }
+  @keyframes sphIn   { from{opacity:0;transform:translateY(-50%) scale(.93)} to{opacity:1;transform:translateY(-50%) scale(1)} }
+  @keyframes float   { 0%,100%{transform:translateY(-50%)} 50%{transform:translateY(-52%)} }
+  @keyframes lineGrow{ from{transform:scaleY(0)} to{transform:scaleY(1)} }
+
+  /* Section number */
+  .sec-num {
+    position: absolute; top: 2.2rem; right: 8vw;
+    font-family: var(--font-body); font-size: .58rem; font-weight: 300;
+    letter-spacing: .18em; color: var(--text-dis);
+  }
+
+  /* ───────────────────────────
+     SLIDE 1 — COVER (Anthrazit)
+     ─────────────────────────── */
+  #s1 {
+    background: var(--anthrazit); color: var(--text-light);
+    justify-content: space-between; padding-top: 5vh; padding-bottom: 5vh;
+  }
+  .cover-top { display: flex; justify-content: space-between; align-items: flex-start; }
+  .wordmark {
+    font-family: var(--font-body); font-size: .7rem; font-weight: 300;
+    letter-spacing: .24em; color: rgba(243,244,246,.4); text-transform: uppercase;
+  }
+  .badge {
+    font-family: var(--font-body); font-size: .65rem; font-weight: 300;
+    letter-spacing: .18em; color: var(--blue);
+    border: 1px solid var(--blue-border); padding: .36rem .88rem; text-transform: uppercase;
+  }
+  .cover-main { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 5vh 0; }
+  .eyebrow {
+    font-family: var(--font-body); font-size: .65rem; font-weight: 300;
+    letter-spacing: .28em; color: var(--blue); text-transform: uppercase;
+    margin-bottom: 1.8rem; opacity: 0; animation: fadeUp .65s .2s forwards;
+  }
+  .cover-hl {
+    font-family: var(--font-head); font-size: clamp(3.2rem,8vw,8.2rem);
+    font-weight: 300; line-height: .95; letter-spacing: -.01em;
+    color: var(--text-light); margin-bottom: 2.2rem;
+  }
+  .cover-hl .ln { display: block; overflow: hidden; }
+  .cover-hl .ln span {
+    display: block; opacity: 0; transform: translateY(100%);
+    animation: slideUp .82s cubic-bezier(.16,1,.3,1) forwards;
+  }
+  .cover-hl .ln:nth-child(1) span { animation-delay: .32s; }
+  .cover-hl .ln:nth-child(2) span { animation-delay: .46s; color: var(--blue); font-style: italic; }
+  .cover-hl .ln:nth-child(3) span { animation-delay: .6s; }
+  .cover-sub {
+    font-family: var(--font-body); font-size: .98rem; font-weight: 300;
+    line-height: 1.78; color: rgba(243,244,246,.55); max-width: 460px;
+    opacity: 0; animation: fadeUp .65s 1s forwards;
+  }
+
+  /* Sphere */
+  .sphere {
+    position: absolute; right: -4vw; top: 50%;
+    width: min(50vw,620px); height: min(50vw,620px);
+    pointer-events: none; opacity: 0;
+    animation: sphIn 1.2s .45s cubic-bezier(.16,1,.3,1) forwards, float 9s 2s ease-in-out infinite;
+  }
+
+  .cover-bot { display: flex; justify-content: space-between; align-items: flex-end; }
+  .scroll-hint {
+    font-family: var(--font-body); font-size: .6rem; font-weight: 300;
+    letter-spacing: .22em; color: rgba(243,244,246,.3); text-transform: uppercase;
+    display: flex; align-items: center; gap: .85rem;
+    opacity: 0; animation: fadeUp .65s 1.3s forwards;
+  }
+  .scroll-hint::before {
+    content: ''; display: block; width: 1px; height: 32px;
+    background: rgba(243,244,246,.22); transform-origin: top;
+    transform: scaleY(0); animation: lineGrow .55s 1.5s ease forwards;
+  }
+  .date-badge {
+    font-family: var(--font-body); font-size: .65rem; font-weight: 300;
+    color: rgba(243,244,246,.38); text-align: right; line-height: 1.9;
+    opacity: 0; animation: fadeUp .65s 1.3s forwards;
+  }
+  .date-badge strong { display: block; color: var(--blue); font-size: .8rem; font-weight: 400; letter-spacing: .08em; }
+
+  /* ───────────────────────────
+     SLIDE 2 — PROBLEM (White)
+     ─────────────────────────── */
+  #s2 { background: var(--white); }
+  .slide-lbl {
+    font-family: var(--font-body); font-size: .6rem; font-weight: 300;
+    letter-spacing: .3em; text-transform: uppercase;
+    color: var(--text-dis); margin-bottom: 2.8rem;
+  }
+  .split { display: grid; grid-template-columns: 1fr 1fr; gap: 7vw; align-items: center; }
+  .hrule { width: 38px; height: 1px; background: var(--blue); margin-bottom: 1.8rem; }
+  .big-q {
+    font-family: var(--font-head); font-size: clamp(1.8rem,3.5vw,3.8rem);
+    font-weight: 300; line-height: 1.18; letter-spacing: -.01em; color: var(--text-sec);
+  }
+  .big-q em { font-style: italic; color: var(--blue); }
+  .pts { display: flex; flex-direction: column; gap: 1.9rem; }
+  .pt { display: flex; gap: 1.3rem; align-items: flex-start; }
+  .pt-n {
+    font-family: var(--font-body); font-size: .58rem; font-weight: 300;
+    letter-spacing: .1em; color: var(--blue); padding-top: .32rem; min-width: 2rem;
+  }
+  .pt-t { font-family: var(--font-body); font-size: .98rem; font-weight: 300; line-height: 1.72; color: var(--text-sec); }
+  .pt-t strong { color: var(--text-dark); font-weight: 400; }
+
+  /* ───────────────────────────
+     SLIDE 3 — WER WIR SIND (Anthrazit)
+     ─────────────────────────── */
+  #s3 { background: var(--anthrazit); }
+  #s3 .slide-lbl { color: rgba(243,244,246,.3); }
+  #s3 .sec-num   { color: rgba(243,244,246,.18); }
+  .tl {
+    font-family: var(--font-head); font-size: clamp(2.5rem,5.8vw,6.2rem);
+    font-weight: 300; line-height: 1.06; letter-spacing: -.01em;
+    color: var(--text-light); max-width: 840px;
+  }
+  .tl em { font-style: italic; color: var(--blue); }
+  .three-cols {
+    display: grid; grid-template-columns: repeat(3,1fr); gap: 2.8rem;
+    margin-top: 4.5rem; border-top: 1px solid rgba(57,135,184,.2); padding-top: 2.8rem;
+  }
+  .col-n {
+    font-family: var(--font-head); font-size: 2.8rem; font-weight: 300;
+    color: var(--blue); line-height: 1; margin-bottom: .55rem;
+  }
+  .col-lbl {
+    font-family: var(--font-body); font-size: .6rem; font-weight: 300;
+    letter-spacing: .2em; text-transform: uppercase;
+    color: rgba(243,244,246,.32); margin-bottom: .65rem;
+  }
+  .col-d { font-family: var(--font-body); font-size: .92rem; font-weight: 300; line-height: 1.68; color: rgba(243,244,246,.58); }
+
+  /* ───────────────────────────
+     SLIDE 4 — PROJEKTE (Grey)
+     ─────────────────────────── */
+  #s4 { background: var(--grey-light); }
+  .proj-grid {
+    display: grid; grid-template-columns: repeat(3,1fr);
+    gap: 1px; margin-top: 2.2rem; background: var(--blue-border);
+  }
+  .proj-card {
+    background: var(--white); padding: 2rem 1.7rem;
+    position: relative; overflow: hidden; transition: background .28s;
+  }
+  .proj-card:hover { background: rgba(48,135,185,.04); }
+  .proj-card::before {
+    content: ''; position: absolute; top: 0; left: 0;
+    width: 100%; height: 2px; background: var(--blue);
+    transform: scaleX(0); transform-origin: left; transition: transform .32s ease;
+  }
+  .proj-card:hover::before { transform: scaleX(1); }
+  .proj-tag {
+    font-family: var(--font-body); font-size: .56rem; font-weight: 300;
+    letter-spacing: .2em; color: var(--blue); text-transform: uppercase; margin-bottom: .8rem;
+  }
+  .proj-name {
+    font-family: var(--font-head); font-size: 1.4rem; font-weight: 300;
+    color: var(--text-sec); margin-bottom: .6rem; letter-spacing: -.01em;
+  }
+  .proj-desc { font-family: var(--font-body); font-size: .86rem; font-weight: 300; line-height: 1.62; color: var(--text-dis); }
+  .proj-client {
+    margin-top: 1.3rem; font-family: var(--font-body); font-size: .55rem; font-weight: 300;
+    letter-spacing: .18em; color: rgba(153,153,154,.5); text-transform: uppercase;
+  }
+
+  /* ───────────────────────────
+     SLIDE 5 — VISION (White)
+     ─────────────────────────── */
+  #s5 { background: var(--white); }
+  .vis-hl {
+    font-family: var(--font-head); font-size: clamp(2rem,4.2vw,4.8rem);
+    font-weight: 300; line-height: 1.12; letter-spacing: -.01em;
+    color: var(--blue); max-width: 760px; margin-bottom: 3rem;
+  }
+  .pills { display: flex; flex-wrap: wrap; gap: .7rem; margin-bottom: 3.8rem; }
+  .pill {
+    font-family: var(--font-body); font-size: .68rem; font-weight: 300;
+    letter-spacing: .14em; text-transform: uppercase;
+    border: 1px solid var(--blue-border); padding: .52rem 1.15rem;
+    color: var(--blue); transition: all .2s; cursor: default;
+  }
+  .pill:hover { background: var(--blue); color: var(--white); border-color: var(--blue); }
+  .vis-mani {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 3rem;
+    border-top: 1px solid var(--blue-border); padding-top: 2.2rem;
+  }
+  .mani-lbl {
+    font-family: var(--font-body); font-size: .58rem; font-weight: 300;
+    letter-spacing: .24em; text-transform: uppercase; color: var(--text-dis); margin-bottom: .7rem;
+  }
+  .mani-t { font-family: var(--font-body); font-size: .98rem; font-weight: 300; line-height: 1.74; color: var(--text-sec); }
+
+  /* ───────────────────────────
+     SLIDE 6 — WHY CONTENTSHIFT (Grey)
+     ─────────────────────────── */
+  #s6 { background: var(--grey-light); }
+  .why-grid { display: grid; grid-template-columns: 54% 1fr; gap: 5.5vw; align-items: start; margin-top: 2.2rem; }
+  .why-hl {
+    font-family: var(--font-head); font-size: clamp(1.8rem,3.2vw,3.4rem);
+    font-weight: 300; line-height: 1.18; letter-spacing: -.01em;
+    color: var(--text-sec); margin-bottom: 1.6rem;
+  }
+  .why-t { font-family: var(--font-body); font-size: .98rem; font-weight: 300; line-height: 1.74; color: var(--text-sec); margin-bottom: 1.3rem; }
+  .match-card {
+    background: var(--white); border: 1px solid var(--blue-border);
+    padding: 1.5rem; margin-bottom: .9rem; position: relative; transition: border-color .22s;
+  }
+  .match-card:hover { border-color: var(--blue); }
+  .match-card::after { content: attr(data-icon); position: absolute; top: .9rem; right: 1.1rem; font-size: 1.1rem; }
+  .match-ttl {
+    font-family: var(--font-body); font-size: .58rem; font-weight: 300;
+    letter-spacing: .2em; text-transform: uppercase; color: var(--blue); margin-bottom: .4rem;
+  }
+  .match-d { font-family: var(--font-body); font-size: .86rem; font-weight: 300; line-height: 1.6; color: var(--text-dis); }
+  .award-box {
+    margin-top: 1.8rem; background: var(--anthrazit); padding: 1.6rem 1.8rem;
+    display: flex; align-items: center; gap: 1.8rem;
+  }
+  .award-amt {
+    font-family: var(--font-head); font-size: 2.6rem; font-weight: 300;
+    color: var(--blue); white-space: nowrap; letter-spacing: -.02em;
+  }
+  .award-t { font-family: var(--font-body); font-size: .86rem; font-weight: 300; line-height: 1.62; color: rgba(243,244,246,.52); }
+
+  /* ───────────────────────────
+     SLIDE 7 — CTA (Anthrazit)
+     ─────────────────────────── */
+  #s7 { background: var(--anthrazit); justify-content: space-between; }
+  .cta-top {
+    font-family: var(--font-body); font-size: .6rem; font-weight: 300;
+    letter-spacing: .28em; color: rgba(243,244,246,.3); text-transform: uppercase;
+  }
+  .cta-main { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+  .cta-hl {
+    font-family: var(--font-head); font-size: clamp(2.8rem,8vw,8.8rem);
+    font-weight: 300; line-height: .93; letter-spacing: -.02em; margin-bottom: 3.5rem;
+  }
+  .cta-hl .w1 { display: block; color: var(--text-light); }
+  .cta-hl .w2 { display: block; color: var(--blue); font-style: italic; }
+  .cta-hl .w3 { display: block; color: rgba(243,244,246,.22); }
+  .cta-links { display: flex; gap: 1.8rem; align-items: center; flex-wrap: wrap; }
+  .cta-btn {
+    font-family: var(--font-body); font-size: .7rem; font-weight: 400;
+    letter-spacing: .16em; text-transform: uppercase;
+    color: var(--anthrazit); background: var(--text-light);
+    padding: .88rem 2rem; text-decoration: none; transition: all .22s; display: inline-block;
+  }
+  .cta-btn:hover { background: var(--blue); color: var(--white); }
+  .cta-soft {
+    font-family: var(--font-body); font-size: .65rem; font-weight: 300;
+    letter-spacing: .14em; text-transform: uppercase;
+    color: rgba(243,244,246,.32); text-decoration: none;
+    border-bottom: 1px solid rgba(243,244,246,.18); padding-bottom: .12rem;
+    transition: color .2s, border-color .2s;
+  }
+  .cta-soft:hover { color: var(--text-light); border-color: rgba(243,244,246,.45); }
+  .cta-bot { display: flex; justify-content: space-between; align-items: flex-end; }
+  .contact {
+    font-family: var(--font-body); font-size: .68rem; font-weight: 300;
+    color: rgba(243,244,246,.32); line-height: 2; letter-spacing: .04em;
+  }
+  .contact a { color: var(--blue); text-decoration: none; }
+  .final-tl {
+    font-family: var(--font-head); font-size: 1rem; font-weight: 300;
+    font-style: italic; color: rgba(243,244,246,.16); text-align: right;
+  }
+
+  /* ───────────────────────────
+     SLIDE 7 — PRESSE (Anthrazit)
+     ─────────────────────────── */
+  #s7 { background: var(--anthrazit); }
+  #s7 .slide-lbl { color: rgba(243,244,246,.3); }
+  #s7 .sec-num   { color: rgba(243,244,246,.18); }
+
+  .press-intro {
+    font-family: var(--font-head); font-size: clamp(1.7rem,3.2vw,3.2rem);
+    font-weight: 300; line-height: 1.2; letter-spacing: -.01em;
+    color: var(--text-light); max-width: 700px; margin-bottom: 4rem;
+  }
+  .press-intro em { font-style: italic; color: var(--blue); }
+
+  .press-list { display: flex; flex-direction: column; gap: 0; }
+
+  .press-item {
+    display: grid;
+    grid-template-columns: 10rem 1fr auto;
+    align-items: center;
+    gap: 2.5rem;
+    padding: 1.8rem 0;
+    border-top: 1px solid rgba(57,135,184,.18);
+    text-decoration: none;
+    transition: background .22s;
+    position: relative;
+  }
+  .press-item:last-child { border-bottom: 1px solid rgba(57,135,184,.18); }
+  .press-item:hover { background: rgba(48,135,185,.06); margin: 0 -8vw; padding-left: 8vw; padding-right: 8vw; }
+
+  .press-meta {
+    font-family: var(--font-body); font-size: .62rem; font-weight: 300;
+    letter-spacing: .16em; text-transform: uppercase;
+    color: var(--blue); line-height: 1.7;
+  }
+  .press-meta span { display: block; color: rgba(243,244,246,.3); font-size: .56rem; margin-top: .15rem; }
+
+  .press-title {
+    font-family: var(--font-head); font-size: 1.05rem; font-weight: 300;
+    color: var(--text-light); line-height: 1.35; letter-spacing: -.005em;
+  }
+  .press-title small {
+    display: block; margin-top: .4rem;
+    font-family: var(--font-body); font-size: .8rem; font-weight: 300;
+    color: rgba(243,244,246,.42); letter-spacing: 0;
+  }
+
+  .press-arrow {
+    font-size: .9rem; color: rgba(48,135,185,.5);
+    transition: color .2s, transform .2s;
+  }
+  .press-item:hover .press-arrow { color: var(--blue); transform: translateX(4px); }
+
+  .press-count {
+    margin-top: 3rem;
+    font-family: var(--font-body); font-size: .65rem; font-weight: 300;
+    letter-spacing: .22em; text-transform: uppercase;
+    color: rgba(243,244,246,.28);
+  }
+  .press-count strong { color: var(--blue); font-weight: 400; }
+
+  /* Responsive */
+  @media(max-width:860px){
+    .split,.why-grid,.vis-mani{grid-template-columns:1fr}
+    .three-cols{grid-template-columns:1fr;gap:1.8rem}
+    .proj-grid{grid-template-columns:1fr}
+    .press-item{grid-template-columns:1fr;gap:.8rem}
+    .press-arrow{display:none}
+    .sphere{opacity:.1!important;animation:none!important}
+  }
+  @media(max-width:860px){
+    .split,.why-grid,.vis-mani{grid-template-columns:1fr}
+    .three-cols{grid-template-columns:1fr;gap:1.8rem}
+    .proj-grid{grid-template-columns:1fr}
+    .sphere{opacity:.1!important;animation:none!important}
+  }
+</style>
+</head>
+<body>
+<div class="cursor" id="cur"></div>
+<div class="cursor-ring" id="ring"></div>
+<div class="progress-bar" id="prog"></div>
+
+<nav class="nav-dots" id="nav">
+  <button class="nav-dot active" data-s="s1"></button>
+  <button class="nav-dot" data-s="s2"></button>
+  <button class="nav-dot" data-s="s3"></button>
+  <button class="nav-dot" data-s="s4"></button>
+  <button class="nav-dot" data-s="s5"></button>
+  <button class="nav-dot" data-s="s6"></button>
+  <button class="nav-dot" data-s="s7"></button>
+</nav>
+
+<!-- ── SLIDE 1 COVER ── -->
+<section class="slide" id="s1">
+  <div class="cover-top">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 425.2 173.5" style="height:26px;width:auto;display:block;"><path fill="#fff" d="M352.3,130.7v-34.9l10.7-3.4c1.4-.4,2.8-.7,4.2-.7,2.2,0,3.8.6,4.7,1.7,1,1.2,1.4,3.1,1.4,5.8v31.5h9v-32.3c0-3-1.1-5.5-3.3-7.5-2.2-2-5-3-8.3-3s-2.4.1-4.2.4c-1.9.3-3.5.7-4.9,1.3l-9.5,3.8-2-4.8h-6.8v42h9ZM307.1,100.7c0-1.2.1-2.3.4-3.4s.8-2.1,1.5-3.1c.7-1,1.8-1.8,3.3-2.4,1.5-.6,3.2-.9,5.3-.9s3.5.3,4.9.8c1.4.5,2.5,1.3,3.3,2.2.8.9,1.4,2,1.8,3.1.4,1.1.6,2.4.6,3.7v4.5h-21v-4.5ZM313.3,127.5c-1.6-.6-2.8-1.5-3.6-2.5-.9-1-1.5-2.1-1.9-3.3s-.6-2.3-.6-3.4v-10.1h30v-6.8c0-.8-.1-1.7-.4-2.7-.3-1-.8-2.2-1.7-3.5-.9-1.3-2-2.5-3.3-3.5-1.3-1-3.2-1.9-5.7-2.7-2.4-.7-5.2-1.1-8.4-1.1s-5.8.3-8.2,1c-2.4.7-4.3,1.5-5.7,2.5-1.4,1-2.5,2.2-3.4,3.5-.9,1.3-1.5,2.5-1.8,3.6-.3,1.1-.5,2.2-.5,3.2v15.9c0,.8.1,1.7.4,2.6s.6,1.9,1.2,3c.6,1.1,1.3,2.1,2.4,3,1,.9,2.2,1.8,3.6,2.6,1.4.8,3.2,1.4,5.3,1.9,2.1.5,4.5.7,7.1.7s6.4-.4,9.6-1.3c3.2-.8,5.7-1.7,7.3-2.5l-1.5-3.5-7,2.4c-.1,0-.5.1-1.1.4-.6.2-1.1.4-1.6.5-.4.1-1,.3-1.6.5-.6.2-1.3.3-1.8.4-.6,0-1.1.1-1.6.1-2,0-3.8-.3-5.4-1M274.5,121c0,2.9,1.3,5.4,4,7.4,2.7,2,5.7,3,9.1,3s2.1-.2,3.8-.5c1.7-.3,3.3-.7,4.8-1.3l-1.2-2.9c-1.9.6-3.2.9-3.9.9-2.9,0-4.9-.6-6-1.7-1.1-1.2-1.6-3.3-1.6-6.5s.1-2.3.4-5.9c.2-3.6.4-6.2.4-7.7v-13.5h12v-3.8h-12v-9.7l-9.7,2.9v6.8h-6v3.8h6.7l-.7,28.5ZM248,121c0,2.9,1.3,5.4,4,7.4,2.7,2,5.7,3,9.1,3s2.1-.2,3.8-.5c1.7-.3,3.3-.7,4.8-1.3l-1.2-2.9c-1.9.6-3.2.9-3.9.9-2.9,0-4.9-.6-6-1.7-1.1-1.2-1.6-3.3-1.6-6.5s.1-2.3.4-5.9c.2-3.6.4-6.2.4-7.7v-13.5h12v-3.8h-12v-9.7l-9.7,2.9v6.8h-6v3.8h6.7l-.7,28.5ZM236.6,88.7h-9v42h9v-42ZM222.2,87.4c-.6,0-1.1,0-1.6,0-.5,0-1,.2-1.5.3-.5.2-.9.3-1.3.4-.3.1-.7.3-1.2.7-.5.4-.9.6-1.1.7-.2.1-.6.5-1.2,1-.6.5-.9.9-1.1,1-.2.2-.6.6-1.2,1.2-.7.7-1.1,1.1-1.2,1.3l-3.4,3.4-2.3-8.9h-6.8v42h9v-28.9l3.9-3.9c1-1,2.2-1.7,3.5-2,1.3-.3,2.9-.5,4.7-.5h2.1l.7-8.1ZM166.7,88.7h-9.6c0,.9.5,2.7,1.4,5.3.9,2.6,1.4,4.5,1.4,5.7s0,1.2-.3,1.7l-7.8,22.4h-1.2l-12.1-35.1h-9.5l14.6,42h9.1l9.3-26.9,6.6,19.1,2.7,7.8h9.1l14.6-42h-3.2l-12.2,35.1h-1.2l-11.7-33.6v-1.4ZM95.7,130.7v-34.9l10.7-3.4c1.4-.4,2.8-.7,4.2-.7,2.2,0,3.8.6,4.7,1.7,1,1.2,1.4,3.1,1.4,5.8v31.5h9v-32.3c0-3-1.1-5.5-3.3-7.5-2.2-2-5-3-8.3-3s-2.4.1-4.2.4c-1.9.3-3.5.7-4.9,1.3l-9.5,3.8-2-4.8h-6.8v42h9ZM42.9,121.1c0,3,1.1,5.5,3.3,7.4,2.2,2,5,3,8.3,3s2.4-.1,4.2-.4c1.9-.3,3.5-.7,4.9-1.3l9.4-3.7,2,4.7h6.8v-42h-9v34.9l-10.7,3.4c-1.5.5-2.9.7-4.2.7-2.2,0-3.8-.6-4.7-1.7-1-1.2-1.4-3.1-1.4-5.9v-31.5h-9v32.4Z"/><path fill="#fff" d="M245.2,66.9c-6.8-6.2-9-14.6-10.6-24.1h-1.2v20.1c1.8.6,3.2,2.2,3.2,4.2s-2,4.5-4.5,4.5-4.5-2-4.5-4.5,1.3-3.6,3.1-4.2v-20.2h-1.2c-1.6,9.5-3.8,17.9-10.6,24.1l2.7,9.5h19.5l4-9.5Z"/></svg>
+    <div class="badge">CONTENTshift 2026</div>
+  </div>
+
+  <svg class="sphere" viewBox="0 0 600 600" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <radialGradient id="sg" cx="36%" cy="32%" r="62%">
+        <stop offset="0%"   stop-color="#5ab0d8" stop-opacity=".42"/>
+        <stop offset="42%"  stop-color="#3087B9"  stop-opacity=".2"/>
+        <stop offset="100%" stop-color="#1e2b33"  stop-opacity=".72"/>
+      </radialGradient>
+      <radialGradient id="ss" cx="28%" cy="26%" r="38%">
+        <stop offset="0%"   stop-color="#fff" stop-opacity=".18"/>
+        <stop offset="100%" stop-color="#fff" stop-opacity="0"/>
+      </radialGradient>
+      <filter id="gb"><feGaussianBlur stdDeviation="2.5"/></filter>
+    </defs>
+    <circle cx="300" cy="300" r="272" fill="url(#sg)" stroke="rgba(48,135,185,.16)" stroke-width="1"/>
+    <circle cx="300" cy="300" r="272" fill="url(#ss)"/>
+    <ellipse cx="300" cy="300" rx="272" ry="80"  fill="none" stroke="rgba(48,135,185,.08)" stroke-width="1" transform="rotate(18,300,300)"/>
+    <ellipse cx="300" cy="300" rx="272" ry="132" fill="none" stroke="rgba(48,135,185,.06)" stroke-width="1" transform="rotate(-12,300,300)"/>
+    <ellipse cx="300" cy="300" rx="272" ry="183" fill="none" stroke="rgba(48,135,185,.04)" stroke-width="1" transform="rotate(5,300,300)"/>
+    <circle cx="196" cy="176" r="26" fill="white" opacity=".07" filter="url(#gb)"/>
+    <circle cx="186" cy="166" r="9"  fill="white" opacity=".13" filter="url(#gb)"/>
+    <text x="300" y="284" text-anchor="middle" font-family="'Plus Jakarta Sans',sans-serif" font-size="12" fill="rgba(150,205,235,.28)" letter-spacing="6" font-weight="300">WORTE</text>
+    <text x="300" y="315" text-anchor="middle" font-family="'Plus Jakarta Sans',sans-serif" font-size="19" fill="rgba(150,205,235,.18)" font-style="italic" font-weight="300">werden</text>
+    <text x="300" y="348" text-anchor="middle" font-family="'Plus Jakarta Sans',sans-serif" font-size="12" fill="rgba(150,205,235,.28)" letter-spacing="6" font-weight="300">WELTEN</text>
+  </svg>
+
+  <div class="cover-main">
+    <div class="eyebrow">Bewerbung Accelerator-Programm</div>
+    <h1 class="cover-hl">
+      <span class="ln"><span>Bücher,</span></span>
+      <span class="ln"><span>die dich</span></span>
+      <span class="ln"><span>lesen.</span></span>
+    </h1>
+    <p class="cover-sub">Unwritten entwickelt narrative, KI-gestützte Erlebnisse, die Wissen lebendig machen — weit jenseits des starren Texts.</p>
+  </div>
+
+  <div class="cover-bot">
+    <div class="scroll-hint">Scrollen</div>
+    <div class="date-badge">
+      <strong>08.10.2026</strong>
+      CONTENTshift Award<br>Frankfurter Buchmesse
+    </div>
+  </div>
+</section>
+
+<!-- ── SLIDE 2 PROBLEM ── -->
+<section class="slide" id="s2">
+  <span class="sec-num">02 / 07</span>
+  <div class="slide-lbl reveal">Das Unbeschriebene</div>
+  <div class="split">
+    <div class="reveal d1">
+      <div class="hrule"></div>
+      <blockquote class="big-q">Bücher <em>bewahren</em> Wissen seit Jahrhunderten. Aber wie oft bleibt dieses Wissen stumm?</blockquote>
+    </div>
+    <div class="pts">
+      <div class="pt reveal d2">
+        <span class="pt-n">01 —</span>
+        <p class="pt-t"><strong>Wissen bleibt starr.</strong> Verlage produzieren Content — aber Leser:innen bleiben Empfänger:innen, nie Gesprächspartner.</p>
+      </div>
+      <div class="pt reveal d3">
+        <span class="pt-n">02 —</span>
+        <p class="pt-t"><strong>KI-Adoption fehlt Seele.</strong> Die Branche greift nach Algorithmen und vergisst die Menschen hinter den Bildschirmen.</p>
+      </div>
+      <div class="pt reveal d4">
+        <span class="pt-n">03 —</span>
+        <p class="pt-t"><strong>Geschichten verdienen Gefährten.</strong> Statt kalter Automation braucht die Publishing-Welt lebendige, empathische Begleiter.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── SLIDE 3 WER WIR SIND ── -->
+<section class="slide" id="s3">
+  <span class="sec-num">03 / 07</span>
+  <div class="slide-lbl reveal">Unwritten</div>
+  <h2 class="tl reveal d1">Worte werden <em>Welten</em> —<br>wir bauen die Werkstatt.</h2>
+  <div class="three-cols">
+    <div class="reveal d2">
+      <div class="col-n">∞</div>
+      <div class="col-lbl">Narrative KI</div>
+      <p class="col-d">Wir verschmelzen Literatur und Technologie. Unsere Gefährten lesen, antworten, erinnern sich — und überraschen.</p>
+    </div>
+    <div class="reveal d3">
+      <div class="col-n">12+</div>
+      <div class="col-lbl">Projekte</div>
+      <p class="col-d">Für Fischer, Hugendubel, O'Reilly und darüber hinaus — Bücher und Lerninhalte, die zum Leben erwachen.</p>
+    </div>
+    <div class="reveal d4">
+      <div class="col-n">1</div>
+      <div class="col-lbl">Überzeugung</div>
+      <p class="col-d">Das Unbeschreibliche entsteht nicht durch bessere Algorithmen, sondern durch tiefere menschliche Verbindungen.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── SLIDE 4 PROJEKTE ── -->
+<section class="slide" id="s4">
+  <span class="sec-num">04 / 07</span>
+  <div class="slide-lbl reveal">Packende Gefährten</div>
+  <div class="proj-grid">
+    <div class="proj-card reveal d1">
+      <div class="proj-tag">Literatur × KI</div>
+      <div class="proj-name">Pantopia</div>
+      <p class="proj-desc">Sprich direkt mit Einbug, der starken KI aus dem Roman — ungefiltert, aus erster Hand. Für S. Fischer Verlage.</p>
+      <div class="proj-client">Client — S. Fischer</div>
+    </div>
+    <div class="proj-card reveal d2">
+      <div class="proj-tag">Fachbuch × Dialog</div>
+      <div class="proj-name">O'Reilly Companion</div>
+      <p class="proj-desc">Technische Dokumentation wird zum Gespräch. Wissen, das antwortet statt zu erschlagen.</p>
+      <div class="proj-client">Client — O'Reilly Media</div>
+    </div>
+    <div class="proj-card reveal d3">
+      <div class="proj-tag">Bildung × Erlebnis</div>
+      <div class="proj-name">Hallo World</div>
+      <p class="proj-desc">Tauche ein ins Berlin der 90er und erlebe die Geburt des Internets durch die Augen der Pioniere.</p>
+      <div class="proj-client">Eigenprojekt</div>
+    </div>
+    <div class="proj-card reveal d1">
+      <div class="proj-tag">Wissen × Feuer</div>
+      <div class="proj-name">Lagerfeuer</div>
+      <p class="proj-desc">Die besten Köpfe gehen — ihr Wissen bleibt. Narrative Wissensweitergabe als lebendiger Gefährte.</p>
+      <div class="proj-client">Eigenprojekt</div>
+    </div>
+    <div class="proj-card reveal d2">
+      <div class="proj-tag">Lernbegleitung</div>
+      <div class="proj-name">Companion</div>
+      <p class="proj-desc">Lernbegleitung mit Persönlichkeit. Ein Gefährte, der mitdenkt, mitliest — und überrascht. Für Hugendubel.</p>
+      <div class="proj-client">Client — Hugendubel</div>
+    </div>
+    <div class="proj-card reveal d3">
+      <div class="proj-tag">Kultur × Erinnerung</div>
+      <div class="proj-name">Spurenlese</div>
+      <p class="proj-desc">Erlebe deine Stadt als Abenteuer. Archive die sprechen — historische Quellen, die antworten.</p>
+      <div class="proj-client">Eigenprojekt</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── SLIDE 5 VISION ── -->
+<section class="slide" id="s5">
+  <span class="sec-num">05 / 07</span>
+  <div class="slide-lbl reveal">Was uns antreibt</div>
+  <h2 class="vis-hl reveal d1">Geschichten, die sich erinnern.<br>Bücher, die zuhören.</h2>
+  <div class="pills reveal d2">
+    <span class="pill">Narrative KI</span>
+    <span class="pill">Publishing Tech</span>
+    <span class="pill">Companion Design</span>
+    <span class="pill">Lebendiges Wissen</span>
+    <span class="pill">Empathische Bots</span>
+  </div>
+  <div class="vis-mani">
+    <div class="reveal d3">
+      <div class="mani-lbl">Unser Ansatz</div>
+      <p class="mani-t">Während die Tech-Welt in Buzzwords ertrinkt, arbeiten wir an etwas anderem: an Gefährten, die Verlage und ihre Leser:innen wirklich kennen. Nicht Algorithmen — Beziehungen.</p>
+    </div>
+    <div class="reveal d4">
+      <div class="mani-lbl">Unser Versprechen</div>
+      <p class="mani-t">Aus starren Inhalten werden emotionale Erlebnisse. Aus Büchern werden Gesprächspartner. Das Unbeschreibliche wächst — nicht durch bessere Features, sondern durch tiefere Verbindungen.</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ── SLIDE 6 PRESSE ── -->
+<section class="slide" id="s6" style="background: var(--white);">
+  <span class="sec-num" style="color: var(--text-dis);">06 / 07</span>
+  <div class="slide-lbl reveal" style="color: var(--text-dis);">Wer schon hingeschaut hat</div>
+
+  <p class="press-intro reveal d1" style="color: var(--text-sec);">
+    Drei Veröffentlichungen in einem Jahr — die <em>F.A.Z.</em> ist die dritte und die, die am weitesten ins Herz der Literatur reicht.
+  </p>
+
+  <div class="press-list">
+    <a class="press-item reveal d2" href="https://www.faz.net/aktuell/feuilleton/ki-projekt-unwritten-erschliesst-romane-fuer-gespraeche-accg-200714158.html" target="_blank" style="border-top-color: var(--blue-border);">
+      <div class="press-meta" style="color: var(--blue);">
+        F.A.Z. Feuilleton
+        <span style="color: var(--text-dis);">April 2026</span>
+      </div>
+      <div class="press-title" style="color: var(--text-sec);">
+        KI-Projekt Unwritten erschließt Romane für Gespräche
+        <small style="color: var(--text-dis);">Über Einbug — den Gefährten für Theresa Hannigs Roman Pantopia — und wie Bücher anfangen, zurückzusprechen.</small>
+      </div>
+      <div class="press-arrow" style="color: var(--blue); opacity: .5;">→</div>
+    </a>
+
+    <a class="press-item reveal d3" href="https://buchmarkt.de/2026/02/11/wenn-buecher-antworten-wie-unwritten-literatur-begehbar-machen-will/" target="_blank" style="border-top-color: var(--blue-border);">
+      <div class="press-meta" style="color: var(--blue);">
+        buchmarkt.de
+        <span style="color: var(--text-dis);">Februar 2026</span>
+      </div>
+      <div class="press-title" style="color: var(--text-sec);">
+        Wie Unwritten Literatur begehbar machen will
+        <small style="color: var(--text-dis);">Die Buchbranche schaut zu — und fragt: Was kommt als Nächstes?</small>
+      </div>
+      <div class="press-arrow" style="color: var(--blue); opacity: .5;">→</div>
+    </a>
+
+    <a class="press-item reveal d4" href="https://startupvalley.news/de/unwritten/" target="_blank" style="border-top-color: var(--blue-border); border-bottom-color: var(--blue-border);">
+      <div class="press-meta" style="color: var(--blue);">
+        StartupValley
+        <span style="color: var(--text-dis);">Januar 2026</span>
+      </div>
+      <div class="press-title" style="color: var(--text-sec);">
+        Wie aus statischen Texten lebendige Gesprächspartner werden
+        <small style="color: var(--text-dis);">Das Studio hinter den Gefährten — und die Überzeugung, die es antreibt.</small>
+      </div>
+      <div class="press-arrow" style="color: var(--blue); opacity: .5;">→</div>
+    </a>
+  </div>
+
+  <div class="press-count reveal d5" style="color: var(--text-dis);">
+    <strong style="color: var(--blue);">3</strong> &nbsp;Veröffentlichungen in 12 Monaten — und wir sind schon beim Nächsten.
+  </div>
+
+
+</section>
+
+<!-- ── SLIDE 7 CTA ── -->
+<section class="slide" id="s7">
+  <div class="cta-top reveal" style="display:flex;align-items:center;gap:1.5rem;">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 425.2 173.5" style="height:20px;width:auto;opacity:.5;"><path fill="#fff" d="M352.3,130.7v-34.9l10.7-3.4c1.4-.4,2.8-.7,4.2-.7,2.2,0,3.8.6,4.7,1.7,1,1.2,1.4,3.1,1.4,5.8v31.5h9v-32.3c0-3-1.1-5.5-3.3-7.5-2.2-2-5-3-8.3-3s-2.4.1-4.2.4c-1.9.3-3.5.7-4.9,1.3l-9.5,3.8-2-4.8h-6.8v42h9ZM307.1,100.7c0-1.2.1-2.3.4-3.4s.8-2.1,1.5-3.1c.7-1,1.8-1.8,3.3-2.4,1.5-.6,3.2-.9,5.3-.9s3.5.3,4.9.8c1.4.5,2.5,1.3,3.3,2.2.8.9,1.4,2,1.8,3.1.4,1.1.6,2.4.6,3.7v4.5h-21v-4.5ZM313.3,127.5c-1.6-.6-2.8-1.5-3.6-2.5-.9-1-1.5-2.1-1.9-3.3s-.6-2.3-.6-3.4v-10.1h30v-6.8c0-.8-.1-1.7-.4-2.7-.3-1-.8-2.2-1.7-3.5-.9-1.3-2-2.5-3.3-3.5-1.3-1-3.2-1.9-5.7-2.7-2.4-.7-5.2-1.1-8.4-1.1s-5.8.3-8.2,1c-2.4.7-4.3,1.5-5.7,2.5-1.4,1-2.5,2.2-3.4,3.5-.9,1.3-1.5,2.5-1.8,3.6-.3,1.1-.5,2.2-.5,3.2v15.9c0,.8.1,1.7.4,2.6s.6,1.9,1.2,3c.6,1.1,1.3,2.1,2.4,3,1,.9,2.2,1.8,3.6,2.6,1.4.8,3.2,1.4,5.3,1.9,2.1.5,4.5.7,7.1.7s6.4-.4,9.6-1.3c3.2-.8,5.7-1.7,7.3-2.5l-1.5-3.5-7,2.4c-.1,0-.5.1-1.1.4-.6.2-1.1.4-1.6.5-.4.1-1,.3-1.6.5-.6.2-1.3.3-1.8.4-.6,0-1.1.1-1.6.1-2,0-3.8-.3-5.4-1M274.5,121c0,2.9,1.3,5.4,4,7.4,2.7,2,5.7,3,9.1,3s2.1-.2,3.8-.5c1.7-.3,3.3-.7,4.8-1.3l-1.2-2.9c-1.9.6-3.2.9-3.9.9-2.9,0-4.9-.6-6-1.7-1.1-1.2-1.6-3.3-1.6-6.5s.1-2.3.4-5.9c.2-3.6.4-6.2.4-7.7v-13.5h12v-3.8h-12v-9.7l-9.7,2.9v6.8h-6v3.8h6.7l-.7,28.5ZM248,121c0,2.9,1.3,5.4,4,7.4,2.7,2,5.7,3,9.1,3s2.1-.2,3.8-.5c1.7-.3,3.3-.7,4.8-1.3l-1.2-2.9c-1.9.6-3.2.9-3.9.9-2.9,0-4.9-.6-6-1.7-1.1-1.2-1.6-3.3-1.6-6.5s.1-2.3.4-5.9c.2-3.6.4-6.2.4-7.7v-13.5h12v-3.8h-12v-9.7l-9.7,2.9v6.8h-6v3.8h6.7l-.7,28.5ZM236.6,88.7h-9v42h9v-42ZM222.2,87.4c-.6,0-1.1,0-1.6,0-.5,0-1,.2-1.5.3-.5.2-.9.3-1.3.4-.3.1-.7.3-1.2.7-.5.4-.9.6-1.1.7-.2.1-.6.5-1.2,1-.6.5-.9.9-1.1,1-.2.2-.6.6-1.2,1.2-.7.7-1.1,1.1-1.2,1.3l-3.4,3.4-2.3-8.9h-6.8v42h9v-28.9l3.9-3.9c1-1,2.2-1.7,3.5-2,1.3-.3,2.9-.5,4.7-.5h2.1l.7-8.1ZM166.7,88.7h-9.6c0,.9.5,2.7,1.4,5.3.9,2.6,1.4,4.5,1.4,5.7s0,1.2-.3,1.7l-7.8,22.4h-1.2l-12.1-35.1h-9.5l14.6,42h9.1l9.3-26.9,6.6,19.1,2.7,7.8h9.1l14.6-42h-3.2l-12.2,35.1h-1.2l-11.7-33.6v-1.4ZM95.7,130.7v-34.9l10.7-3.4c1.4-.4,2.8-.7,4.2-.7,2.2,0,3.8.6,4.7,1.7,1,1.2,1.4,3.1,1.4,5.8v31.5h9v-32.3c0-3-1.1-5.5-3.3-7.5-2.2-2-5-3-8.3-3s-2.4.1-4.2.4c-1.9.3-3.5.7-4.9,1.3l-9.5,3.8-2-4.8h-6.8v42h9ZM42.9,121.1c0,3,1.1,5.5,3.3,7.4,2.2,2,5,3,8.3,3s2.4-.1,4.2-.4c1.9-.3,3.5-.7,4.9-1.3l9.4-3.7,2,4.7h6.8v-42h-9v34.9l-10.7,3.4c-1.5.5-2.9.7-4.2.7-2.2,0-3.8-.6-4.7-1.7-1-1.2-1.4-3.1-1.4-5.9v-31.5h-9v32.4Z"/><path fill="#fff" d="M245.2,66.9c-6.8-6.2-9-14.6-10.6-24.1h-1.2v20.1c1.8.6,3.2,2.2,3.2,4.2s-2,4.5-4.5,4.5-4.5-2-4.5-4.5,1.3-3.6,3.1-4.2v-20.2h-1.2c-1.6,9.5-3.8,17.9-10.6,24.1l2.7,9.5h19.5l4-9.5Z"/></svg>
+    <span>07 / 07 &nbsp;·&nbsp; unwritten.studio</span>
+  </div>
+  <div class="cta-main">
+    <h2 class="cta-hl">
+      <span class="w1 reveal d1">Lass uns</span>
+      <span class="w2 reveal d2">gemeinsam</span>
+      <span class="w3 reveal d3">beginnen.</span>
+    </h2>
+    <div class="cta-links reveal d4">
+      <a href="https://unwritten.studio" class="cta-btn" target="_blank">unwritten.studio →</a>
+    </div>
+  </div>
+  <div class="cta-bot">
+    <div class="contact reveal">
+      Unwritten GmbH<br>
+      <a href="mailto:post@unwritten.studio">post@unwritten.studio</a><br>
+      Bewerbungsfrist: 30. April 2026
+    </div>
+    <div class="final-tl reveal d2">Worte werden Welten.</div>
+  </div>
+</section>
+
+<script>
+  // Cursor
+  const cur = document.getElementById('cur'), ring = document.getElementById('ring');
+  let mx=0,my=0,rx=0,ry=0;
+  document.addEventListener('mousemove', e=>{ mx=e.clientX; my=e.clientY; cur.style.left=mx+'px'; cur.style.top=my+'px'; });
+  (function anim(){ rx+=(mx-rx)*.11; ry+=(my-ry)*.11; ring.style.left=rx+'px'; ring.style.top=ry+'px'; requestAnimationFrame(anim); })();
+
+  // Progress + nav dots
+  const prog=document.getElementById('prog'), dots=[...document.querySelectorAll('.nav-dot')], slides=[...document.querySelectorAll('.slide')];
+  window.addEventListener('scroll',()=>{
+    prog.style.width=(window.scrollY/(document.body.scrollHeight-window.innerHeight)*100)+'%';
+    let a=0; slides.forEach((s,i)=>{ if(s.getBoundingClientRect().top<=window.innerHeight*.5) a=i; });
+    dots.forEach((d,i)=>d.classList.toggle('active',i===a));
+  });
+  dots.forEach(d=>d.addEventListener('click',()=>document.getElementById(d.dataset.s).scrollIntoView({behavior:'smooth'})));
+
+  // Reveal
+  const io=new IntersectionObserver(e=>e.forEach(x=>{ if(x.isIntersecting) x.target.classList.add('visible'); }),{threshold:.12});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+</script>
+</body>
+</html>
